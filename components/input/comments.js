@@ -10,10 +10,12 @@ function Comments(props) {
 
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
+  const [isFetchingComments, setIsFetchingComments] = useState(false);
   const notificationCtx = useContext(NotificationContext);
 
   useEffect(() => {
     if (showComments) {
+      setIsFetchingComments(true);
       fetch(`/api/comments/${eventId}`)
         .then((res) => {
           if (res.ok) {
@@ -26,16 +28,14 @@ function Comments(props) {
         })
         .then((data) => {
           setComments(data.comments);
+          setIsFetchingComments(false);
         })
         .catch((err) => {
-          notificationCtx.showNotification({
-            title: "Error!",
-            message: err.message || "Unable to load comments",
-            status: "error",
-          });
+          res.json(err.message);
+          setIsFetchingComments(false);
         });
     }
-  }, [showComments, comments]);
+  }, [showComments]);
 
   function toggleCommentsHandler() {
     setShowComments((prevStatus) => !prevStatus);
@@ -64,7 +64,9 @@ function Comments(props) {
         }
 
         return response.json().then((data) => {
-          throw new Error(data.message || "Something went wrong");
+          throw new Error(
+            data.message || "Your comment could not be submitted."
+          );
         });
       })
       .then((data) => {
@@ -90,7 +92,8 @@ function Comments(props) {
         {showComments ? "Hide" : "Show"} Comments
       </button>
       {showComments && <NewComment onAddComment={addCommentHandler} />}
-      {showComments && <CommentList items={comments} />}
+      {showComments && !isFetchingComments && <CommentList items={comments} />}
+      {showComments && isFetchingComments && <p>Loading...</p>}
     </section>
   );
 }
