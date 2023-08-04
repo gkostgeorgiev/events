@@ -3,10 +3,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export async function connectDatabase() {
-  const client = await MongoClient.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  const client = await MongoClient.connect(
+    process.env.MONGODB_URI
+  );
   if (client) {
     console.log("DB connected");
   }

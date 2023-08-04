@@ -11,16 +11,24 @@ async function handler(req, res) {
 
     try {
       client = await connectDatabase();
+      if (client){
+        console.log('Database Connected!');
+      }
     } catch (err) {
       res.status(500).json({ message: "Connecing to the database failed" });
+      console.log('Connection to the database failed');
       return;
     }
 
     try {
-      await insertDocument(client, 'newsletter', { email: userEmail });
-      client.close();
+      const response = await insertDocument(client, 'newsletter', { email: userEmail });
+      if (response){
+        console.log('Email successfully registered');
+      }
+      await client.close();
     } catch (err) {
       res.status(500).json({ message: "Inserting data failed" });
+      console.log('Unable to register email')
       return;
     }
 
